@@ -1,9 +1,12 @@
+dist: xenial
 language: python
 services:
   - sqlite3
 python:
+  - "3.4"
   - "3.5"
   - "3.6"
+  - "3.7"
 env:
   - DJANGO=2.2.1 DB=sqlite
 install:
