@@ -75,3 +75,46 @@ class EmployeeAPIViewTests(APITestCase):
 
         response_data = response.json()
         self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_name_filter(self):
+        """
+        employee_name_filter returns True if Employee response
+        retrieves only employees whose names contain query string case insensitive.
+        """
+        query_string = '?name=doe'
+        response = self.client.get(reverse('employee-list') + query_string)
+        self.assertEqual(200, response.status_code)
+
+        employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(name__contains="Doe"), many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_email_filter(self):
+        """
+        employee_email_filter returns True if Employee response
+        retrieves only employees whose emails contain query string case insensitive.
+        """
+        query_string = '?email=LUIZALABS.COM'
+        response = self.client.get(reverse('employee-list') + query_string)
+        self.assertEqual(200, response.status_code)
+
+        employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(email__contains="luizalabs.com"), many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_department_filter(self):
+        """
+        employee_department_filter returns True if Employee response
+        retrieves only employees whose departments contain query string case insensitive.
+        """
+        query_string = '?department=dev'
+        response = self.client.get(reverse('employee-list') + query_string)
+        self.assertEqual(200, response.status_code)
+
+        employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(department__contains="Dev"), many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
