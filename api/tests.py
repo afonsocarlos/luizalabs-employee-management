@@ -170,7 +170,13 @@ class EmployeeAPIViewTests(BaseAPITest):
         response = self.client.get(reverse('employee-list'), HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
-        employees_serialized_data = EmployeeSerializer(instance=Employee.objects.all(), many=True).data
+        employees = Employee.objects.all()
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
 
         response_data = response.json()
         self.assertEqual(employees_serialized_data, response_data)
@@ -183,7 +189,13 @@ class EmployeeAPIViewTests(BaseAPITest):
         response = self.client.get(reverse('employee-list'), data={'name': 'doe'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
-        employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(name__contains="Doe"), many=True).data
+        employees = Employee.objects.filter(name__contains="Doe")
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
 
         response_data = response.json()
         self.assertEqual(employees_serialized_data, response_data)
@@ -196,7 +208,13 @@ class EmployeeAPIViewTests(BaseAPITest):
         response = self.client.get(reverse('employee-list') , data={'email': 'LUIZALABS.COM'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
-        employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(email__contains="luizalabs.com"), many=True).data
+        employees = Employee.objects.filter(email__contains="luizalabs.com")
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
 
         response_data = response.json()
         self.assertEqual(employees_serialized_data, response_data)
@@ -209,7 +227,13 @@ class EmployeeAPIViewTests(BaseAPITest):
         response = self.client.get(reverse('employee-list') , data={'department': 'dev'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
-        employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(department__contains="Dev"), many=True).data
+        employees = Employee.objects.filter(department__contains="Dev")
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
 
         response_data = response.json()
         self.assertEqual(employees_serialized_data, response_data)
