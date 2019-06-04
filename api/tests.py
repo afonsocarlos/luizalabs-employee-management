@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.db.utils import IntegrityError
 from rest_framework.reverse import reverse
@@ -5,6 +6,9 @@ from rest_framework.test import APITestCase
 
 from api.models import Employee
 from api.serializers import EmployeeSerializer
+
+
+UserModel = get_user_model()
 
 
 class EmployeeModelTests(TestCase):
@@ -42,7 +46,98 @@ class EmployeeModelTests(TestCase):
         self.assertEqual(list(Employee.objects.values_list('name', flat=True)), names)
 
 
-class EmployeeAPIViewTests(APITestCase):
+class BaseAPITest(APITestCase):
+    """Base class responsible for setting up necessary config."""
+
+    def setUp(self):
+        """
+        Set up necessary objects for testing this class.
+        """
+        super().setUp()
+
+        # create test user for authentication
+        self.test_user = UserModel.objects.create_user(
+            'test_user', 'test@luizalabs.com', 'test123456'
+        )
+
+    def _request_token_authentication(self, user, password):
+        token_request_data = {
+            'username': user,
+            'password': password,
+        }
+        response = self.client.post(
+            reverse('api-token-auth'),
+            data=token_request_data
+        )
+        return response
+
+
+class JWTAuthenticationTests(BaseAPITest):
+    """Test class for API authentication access functionality."""
+
+    def test_authentication_with_wrong_credentials(self):
+        """Authentication response should deny login request."""
+        response = self._request_token_authentication('test_user', 'WRONG_PASS')
+        self.assertEqual(response.status_code, 400)
+
+    def test_authentication_with_right_credentials(self):
+        """Authentication response should allow login request."""
+        response = self._request_token_authentication('test_user', 'test123456')
+        self.assertEqual(response.status_code, 200)
+
+        content = response.json()
+        self.assertTrue('token' in content)
+
+    def test_access_without_authentication(self):
+        """
+        All routes except the authentication ones should
+        return "Not Allowed" or "Not authenticated" message,
+        blocking the user to access data.
+        """
+        response = self.client.get(reverse('employee-list'))
+        content = response.json()
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            content['detail'], 'Authentication credentials were not provided.'
+        )
+
+    def test_access_with_wrong_authentication(self):
+        """
+        All routes except the authentication ones should
+        return "Not Allowed" or "Not authenticated" message,
+        blocking the user to access data.
+        """
+        auth = 'JWT'
+
+        response = self.client.get(
+            reverse('employee-list'), HTTP_AUTHORIZATION=auth
+        )
+        content = response.json()
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            content['detail'], 'Invalid Authorization header. No credentials provided.'
+        )
+
+    def test_access_with_right_authentication(self):
+        """
+        API should allow route access and return
+        expected results from requests.
+        """
+        response = self._request_token_authentication('test_user', 'test123456')
+        content = response.json()
+        auth = 'JWT {}'.format(content['token'])
+
+        response = self.client.get(
+            reverse('employee-list'), HTTP_AUTHORIZATION=auth
+        )
+        content = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('count', content)
+        self.assertIn('results', content)
+
+
+
+class EmployeeAPIViewTests(BaseAPITest):
     """Test class for EmployeeView class."""
 
     def setUp(self):
