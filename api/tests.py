@@ -180,8 +180,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         employee_name_filter returns True if Employee response
         retrieves only employees whose names contain query string case insensitive.
         """
-        query_string = '?name=doe'
-        response = self.client.get(reverse('employee-list') + query_string, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.get(reverse('employee-list'), data={'name': 'doe'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(name__contains="Doe"), many=True).data
@@ -194,8 +193,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         employee_email_filter returns True if Employee response
         retrieves only employees whose emails contain query string case insensitive.
         """
-        query_string = '?email=LUIZALABS.COM'
-        response = self.client.get(reverse('employee-list') + query_string, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.get(reverse('employee-list') , data={'email': 'LUIZALABS.COM'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(email__contains="luizalabs.com"), many=True).data
@@ -208,8 +206,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         employee_department_filter returns True if Employee response
         retrieves only employees whose departments contain query string case insensitive.
         """
-        query_string = '?department=dev'
-        response = self.client.get(reverse('employee-list') + query_string, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.get(reverse('employee-list') , data={'department': 'dev'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(department__contains="Dev"), many=True).data
