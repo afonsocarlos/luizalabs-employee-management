@@ -146,6 +146,10 @@ class EmployeeAPIViewTests(BaseAPITest):
         """
         super().setUp()
 
+        response = self._request_token_authentication('test_user', 'test123456')
+        content = response.json()
+        self.auth_token = 'JWT {}'.format(content['token'])
+
         Employee.objects.bulk_create([
             Employee(name='John Doe',
                      email='john.doe@luizalabs.com',
@@ -163,7 +167,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         employee_basic_request returns True if Employee response
         retrieves all employees.
         """
-        response = self.client.get(reverse('employee-list'))
+        response = self.client.get(reverse('employee-list'), HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees_serialized_data = EmployeeSerializer(instance=Employee.objects.all(), many=True).data
@@ -177,7 +181,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         retrieves only employees whose names contain query string case insensitive.
         """
         query_string = '?name=doe'
-        response = self.client.get(reverse('employee-list') + query_string)
+        response = self.client.get(reverse('employee-list') + query_string, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(name__contains="Doe"), many=True).data
@@ -191,7 +195,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         retrieves only employees whose emails contain query string case insensitive.
         """
         query_string = '?email=LUIZALABS.COM'
-        response = self.client.get(reverse('employee-list') + query_string)
+        response = self.client.get(reverse('employee-list') + query_string, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(email__contains="luizalabs.com"), many=True).data
@@ -205,7 +209,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         retrieves only employees whose departments contain query string case insensitive.
         """
         query_string = '?department=dev'
-        response = self.client.get(reverse('employee-list') + query_string)
+        response = self.client.get(reverse('employee-list') + query_string, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees_serialized_data = EmployeeSerializer(instance=Employee.objects.filter(department__contains="Dev"), many=True).data
