@@ -16,6 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 from rest_framework import routers
+from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
 from api import views as api_views
 
@@ -25,5 +26,7 @@ router.register(r'employees', api_views.EmployeeViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('api-token-auth/', obtain_jwt_token, name='api-token-auth'),
+    path('api-token-refresh/', refresh_jwt_token, name='api-token-refresh'),
     path('api/v1/', include(router.urls)),
 ]
