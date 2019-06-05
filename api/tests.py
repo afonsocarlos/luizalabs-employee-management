@@ -259,3 +259,40 @@ class EmployeeAPIViewTests(BaseAPITest):
 
         response_data = response.json()
         self.assertEqual(employees_serialized_data, response_data)
+
+    def test_post_new_employee_right_fields(self):
+        """
+        post_new_employee_right_fields returns True if Employee response
+        retrieves the created employee.
+        """
+        payload = {
+            'name': 'Test',
+            'email': 'test@luizalabs.com',
+            'department': 'Test',
+            'gender': 'F',
+        }
+        response = self.client.post(reverse('employee-list') , data=payload, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(201, response.status_code)
+
+        response_data = response.json()
+        try:
+            Employee.objects.get(pk=response_data['id'])
+        except Employee.DoesNotExist:
+            self.fail("employee not found!")
+
+    def test_post_new_employee_wrong_fields(self):
+        """
+        post_new_employee_wrong_fields returns True if Employee response
+        has errors of fields which are missing or wrong.
+        """
+        payload = {
+            'name': 'Test',
+            'email': 'invalid.email',
+            'department': 'Test',
+        }
+        response = self.client.post(reverse('employee-list') , data=payload, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(400, response.status_code)
+
+        response_data = response.json()
+        self.assertEqual(response_data['email'], ['Enter a valid email address.'])
+        self.assertEqual(response_data['gender'], ['This field is required.'])
