@@ -208,7 +208,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         employee_email_filter returns True if Employee response
         retrieves only employees whose emails contain query string case insensitive.
         """
-        response = self.client.get(reverse('employee-list') , data={'email': 'LUIZALABS.COM'}, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.get(reverse('employee-list'), data={'email': 'LUIZALABS.COM'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees = Employee.objects.filter(email__contains='luizalabs.com')
@@ -227,7 +227,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         employee_department_filter returns True if Employee response
         retrieves only employees whose departments contain query string case insensitive.
         """
-        response = self.client.get(reverse('employee-list') , data={'department': 'dev'}, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.get(reverse('employee-list'), data={'department': 'dev'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees = Employee.objects.filter(department__contains='Dev')
@@ -246,7 +246,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         employee_gender_filter returns True if Employee response
         retrieves only employees whose genders contain query string case sensitive.
         """
-        response = self.client.get(reverse('employee-list') , data={'gender': 'F'}, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.get(reverse('employee-list'), data={'gender': 'F'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
         employees = Employee.objects.filter(gender='F')
@@ -271,7 +271,7 @@ class EmployeeAPIViewTests(BaseAPITest):
             'department': 'Test',
             'gender': 'F',
         }
-        response = self.client.post(reverse('employee-list') , data=payload, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.post(reverse('employee-list'), data=payload, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(201, response.status_code)
 
         response_data = response.json()
@@ -290,9 +290,27 @@ class EmployeeAPIViewTests(BaseAPITest):
             'email': 'invalid.email',
             'department': 'Test',
         }
-        response = self.client.post(reverse('employee-list') , data=payload, HTTP_AUTHORIZATION=self.auth_token)
+        response = self.client.post(reverse('employee-list'), data=payload, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(400, response.status_code)
 
         response_data = response.json()
         self.assertEqual(response_data['email'], ['Enter a valid email address.'])
         self.assertEqual(response_data['gender'], ['This field is required.'])
+
+    def test_update_employee(self):
+        """
+        update_employee returns True if Employee data is updated.
+        """
+        employee = Employee.objects.first()
+        payload = {
+            'name': 'Updated Name',
+            'email': 'updated.email@luizalabs.com',
+        }
+        response = self.client.patch(reverse('employee-detail', [employee.pk]), data=payload, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        response_data = response.json()
+        updated_employee = Employee.objects.get(pk=response_data['id'])
+        updated_employee = EmployeeSerializer(instance=updated_employee).data
+
+        self.assertEqual(updated_employee, response_data)
