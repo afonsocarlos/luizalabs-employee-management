@@ -153,13 +153,16 @@ class EmployeeAPIViewTests(BaseAPITest):
         Employee.objects.bulk_create([
             Employee(name='John Doe',
                      email='john.doe@luizalabs.com',
-                     department='Development'),
+                     department='Development',
+                     gender='M'),
             Employee(name='Jane Doe',
                      email='jane.doe@luizalabs.com',
-                     department='Marketing'),
+                     department='Marketing',
+                     gender='F'),
             Employee(name='Richard Roe',
                      email='richard.roe@luizalabs.com',
-                     department='Sales'),
+                     department='Sales',
+                     gender='M'),
         ])
 
     def test_employee_basic_request(self):
@@ -189,7 +192,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         response = self.client.get(reverse('employee-list'), data={'name': 'doe'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
-        employees = Employee.objects.filter(name__contains="Doe")
+        employees = Employee.objects.filter(name__contains='Doe')
         employees_serialized_data = {
             'count': employees.count(),
             'next': None,
@@ -208,7 +211,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         response = self.client.get(reverse('employee-list') , data={'email': 'LUIZALABS.COM'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
-        employees = Employee.objects.filter(email__contains="luizalabs.com")
+        employees = Employee.objects.filter(email__contains='luizalabs.com')
         employees_serialized_data = {
             'count': employees.count(),
             'next': None,
@@ -227,7 +230,7 @@ class EmployeeAPIViewTests(BaseAPITest):
         response = self.client.get(reverse('employee-list') , data={'department': 'dev'}, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(200, response.status_code)
 
-        employees = Employee.objects.filter(department__contains="Dev")
+        employees = Employee.objects.filter(department__contains='Dev')
         employees_serialized_data = {
             'count': employees.count(),
             'next': None,
@@ -238,3 +241,21 @@ class EmployeeAPIViewTests(BaseAPITest):
         response_data = response.json()
         self.assertEqual(employees_serialized_data, response_data)
 
+    def test_employee_gender_filter(self):
+        """
+        employee_gender_filter returns True if Employee response
+        retrieves only employees whose genders contain query string case sensitive.
+        """
+        response = self.client.get(reverse('employee-list') , data={'gender': 'F'}, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        employees = Employee.objects.filter(gender='F')
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
