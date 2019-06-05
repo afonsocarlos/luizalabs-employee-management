@@ -3,9 +3,15 @@ from django.db import models
 
 class Employee(models.Model):
     """Employee model represents employees at Luizalabs."""
+    GENDER_CHOICES = (
+        ('M', 'Male'),
+        ('F', 'Female'),
+    )
+
     name = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, unique=True)
     department = models.CharField(max_length=100)
+    gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
