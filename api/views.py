@@ -22,6 +22,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         name = self.request.query_params.get('name')
         email = self.request.query_params.get('email')
         department = self.request.query_params.get('department')
+        gender = self.request.query_params.get('gender')
 
         if name is not None:
             employees = employees.filter(name__icontains=name)
@@ -31,5 +32,8 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
         if department is not None:
             employees = employees.filter(department__icontains=department)
+
+        if gender is not None:
+            employees = employees.filter(gender=gender)
 
         return employees
