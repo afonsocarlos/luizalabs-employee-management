@@ -50,15 +50,37 @@ $ ./manage.py createsuperuser --username admin --email admin@luizalabs.com.br
 $ ./manage.py runserver
 ```
 
-##### Consuming API
+#### Consuming API
 
-Example with httpie:
+##### Example with httpie:
 
+First get a jwt token:
 ```bash
-$ http :8000/api/v1/employees/
+$ http :8000/api-token-auth/ username=username password=pass
 ```
 
-##### Response:
+Response:
+```http
+HTTP/1.1 200 OK
+Allow: POST, OPTIONS
+Content-Length: 232
+Content-Type: application/json
+Date: Wed, 05 Jun 2019 02:18:49 GMT
+Server: WSGIServer/0.2 CPython/3.7.3
+Vary: Accept
+X-Frame-Options: SAMEORIGIN
+
+{
+    "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTU5NzAxNDI5LCJlbWFpbCI6ImFkbWluQGx1aXphbGFicy5jb20uYnIiLCJvcmlnX2lhdCI6MTU1OTcwMTEyOX0.X0zaJ_ZimtBEUMHpNVtr8uQrdYakKFcoImvOr4_Bjh4"
+}
+```
+
+Then make request
+```bash
+$ http :8000/api/v1/employees/ "Authorization: JWT eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoxLCJ1c2VybmFtZSI6ImFkbWluIiwiZXhwIjoxNTU5NzAxNDI5LCJlbWFpbCI6ImFkbWluQGx1aXphbGFicy5jb20uYnIiLCJvcmlnX2lhdCI6MTU1OTcwMTEyOX0.X0zaJ_ZimtBEUMHpNVtr8uQrdYakKFcoImvOr4_Bjh4"
+```
+
+Response:
 ```http
 HTTP/1.1 200 OK
 Allow: GET, POST, HEAD, OPTIONS
