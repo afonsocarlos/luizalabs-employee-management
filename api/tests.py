@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.db.utils import IntegrityError
@@ -154,15 +156,21 @@ class EmployeeAPIViewTests(BaseAPITest):
             Employee(name='John Doe',
                      email='john.doe@luizalabs.com',
                      department='Development',
-                     gender='M'),
+                     gender='M',
+                     birthdate=datetime(1989, 5, 23),
+                     hire_date=datetime(2004, 7, 12)),
             Employee(name='Jane Doe',
                      email='jane.doe@luizalabs.com',
                      department='Marketing',
-                     gender='F'),
+                     gender='F',
+                     birthdate=datetime(1989, 5, 24),
+                     hire_date=datetime(2019, 4, 7)),
             Employee(name='Richard Roe',
                      email='richard.roe@luizalabs.com',
                      department='Sales',
-                     gender='M'),
+                     gender='M',
+                     birthdate=datetime(1999, 2, 13),
+                     hire_date=datetime(2019, 4, 8)),
         ])
 
     def test_employee_basic_request(self):
@@ -250,6 +258,120 @@ class EmployeeAPIViewTests(BaseAPITest):
         self.assertEqual(200, response.status_code)
 
         employees = Employee.objects.filter(gender='F')
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_birthdate_filter(self):
+        """
+        employee_birthdate_filter returns True if Employee response
+        retrieves only employees whose birthdates match sent date.
+        """
+        response = self.client.get(reverse('employee-list'), data={'birthdate': datetime(1989, 5, 24).date()}, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        employees = Employee.objects.filter(birthdate=datetime(1989, 5, 24).date())
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_birthdate_before_filter(self):
+        """
+        employee_birthdate_filter returns True if Employee response
+        retrieves only employees whose birthdates are less than the sent date.
+        """
+        response = self.client.get(reverse('employee-list'), data={'birthdate_before': datetime(1989, 5, 24).date()}, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        employees = Employee.objects.filter(birthdate__lt=datetime(1989, 5, 24).date())
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_birthdate_after_filter(self):
+        """
+        employee_birthdate_filter returns True if Employee response
+        retrieves only employees whose birthdates are greater than the sent date.
+        """
+        response = self.client.get(reverse('employee-list'), data={'birthdate_after': datetime(1989, 5, 24).date()}, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        employees = Employee.objects.filter(birthdate__gt=datetime(1989, 5, 24).date())
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_hire_date_filter(self):
+        """
+        employee_hire_date_filter returns True if Employee response
+        retrieves only employees whose hire date match sent date.
+        """
+        response = self.client.get(reverse('employee-list'), data={'hire_date': datetime(2019, 4, 7).date()}, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        employees = Employee.objects.filter(hire_date=datetime(2019, 4, 7).date())
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_hire_date_before_filter(self):
+        """
+        employee_hire_date_filter returns True if Employee response
+        retrieves only employees whose hire date are less than the sent date.
+        """
+        response = self.client.get(reverse('employee-list'), data={'hire_date_before': datetime(2019, 4, 7).date()}, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        employees = Employee.objects.filter(hire_date__lt=datetime(2019, 4, 7).date())
+        employees_serialized_data = {
+            'count': employees.count(),
+            'next': None,
+            'previous': None,
+        }
+        employees_serialized_data['results'] = EmployeeSerializer(instance=employees, many=True).data
+
+        response_data = response.json()
+        self.assertEqual(employees_serialized_data, response_data)
+
+    def test_employee_hire_date_after_filter(self):
+        """
+        employee_hire_date_filter returns True if Employee response
+        retrieves only employees whose hire date are greater than the sent date.
+        """
+        response = self.client.get(reverse('employee-list'), data={'hire_date_after': datetime(2019, 4, 7).date()}, HTTP_AUTHORIZATION=self.auth_token)
+        self.assertEqual(200, response.status_code)
+
+        employees = Employee.objects.filter(hire_date__gt=datetime(2019, 4, 7).date())
         employees_serialized_data = {
             'count': employees.count(),
             'next': None,
