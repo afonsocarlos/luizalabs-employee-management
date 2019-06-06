@@ -23,6 +23,12 @@ class EmployeeViewSet(viewsets.ModelViewSet):
         email = self.request.query_params.get('email')
         department = self.request.query_params.get('department')
         gender = self.request.query_params.get('gender')
+        birthdate = self.request.query_params.get('birthdate')
+        birthdate_before = self.request.query_params.get('birthdate_before')
+        birthdate_after = self.request.query_params.get('birthdate_after')
+        hire_date = self.request.query_params.get('hire_date')
+        hire_date_before = self.request.query_params.get('hire_date_before')
+        hire_date_after = self.request.query_params.get('hire_date_after')
 
         if name is not None:
             employees = employees.filter(name__icontains=name)
@@ -35,5 +41,19 @@ class EmployeeViewSet(viewsets.ModelViewSet):
 
         if gender is not None:
             employees = employees.filter(gender=gender)
+
+        if birthdate is not None:
+            employees = employees.filter(birthdate=birthdate)
+        elif birthdate_before is not None:
+            employees = employees.filter(birthdate__lt=birthdate_before)
+        elif birthdate_after is not None:
+            employees = employees.filter(birthdate__gt=birthdate_after)
+
+        if hire_date is not None:
+            employees = employees.filter(hire_date=hire_date)
+        elif hire_date_before is not None:
+            employees = employees.filter(hire_date__lt=hire_date_before)
+        elif hire_date_after is not None:
+            employees = employees.filter(hire_date__gt=hire_date_after)
 
         return employees
