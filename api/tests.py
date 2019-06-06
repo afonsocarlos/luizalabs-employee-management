@@ -23,11 +23,17 @@ class EmployeeModelTests(TestCase):
         """
         Employee.objects.create(name='John Doe',
                                 email='test@luizalabs.com',
-                                department='Development')
+                                department='Development',
+                                gender='M',
+                                birthdate=datetime(1989, 5, 23),
+                                hire_date=datetime(2004, 7, 12))
         with self.assertRaises(IntegrityError):
             Employee.objects.create(name='Jane Doe',
                                     email='test@luizalabs.com',
-                                    department='Marketing')
+                                    department='Marketing',
+                                    gender='M',
+                                    birthdate=datetime(1989, 5, 23),
+                                    hire_date=datetime(2004, 7, 12))
 
     def test_employee_ordering(self):
         """
@@ -36,13 +42,22 @@ class EmployeeModelTests(TestCase):
         """
         Employee.objects.create(name='John Doe',
                                 email='john.doe@luizalabs.com',
-                                department='Development')
+                                department='Development',
+                                gender='M',
+                                birthdate=datetime(1989, 5, 23),
+                                hire_date=datetime(2004, 7, 12))
         Employee.objects.create(name='Jane Doe',
                                 email='jane.doe@luizalabs.com',
-                                department='Marketing')
+                                department='Marketing',
+                                gender='F',
+                                birthdate=datetime(1989, 5, 24),
+                                hire_date=datetime(2019, 4, 7))
         Employee.objects.create(name='Richard Roe',
                                 email='richard.roe@luizalabs.com',
-                                department='Sales')
+                                department='Sales',
+                                gender='M',
+                                birthdate=datetime(1999, 2, 13),
+                                hire_date=datetime(2019, 4, 8))
 
         names = sorted(['John Doe', 'Jane Doe', 'Richard Roe'])
         self.assertEqual(list(Employee.objects.values_list('name', flat=True)), names)
@@ -392,6 +407,8 @@ class EmployeeAPIViewTests(BaseAPITest):
             'email': 'test@luizalabs.com',
             'department': 'Test',
             'gender': 'F',
+            'birthdate': datetime(1990, 8, 17).date(),
+            'hire_date': datetime(2010, 5, 21).date(),
         }
         response = self.client.post(reverse('employee-list'), data=payload, HTTP_AUTHORIZATION=self.auth_token)
         self.assertEqual(201, response.status_code)
