@@ -12,6 +12,8 @@ class Employee(models.Model):
     email = models.EmailField(max_length=100, unique=True)
     department = models.CharField(max_length=100)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
+    birthdate = models.DateField()
+    hire_date = models.DateField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
