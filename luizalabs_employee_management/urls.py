@@ -15,7 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from rest_framework import routers
+from rest_framework import permissions, routers
+from rest_framework.documentation import include_docs_urls
 from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token
 
 from api import views as api_views
@@ -29,4 +30,9 @@ urlpatterns = [
     path('api-token-auth/', obtain_jwt_token, name='api-token-auth'),
     path('api-token-refresh/', refresh_jwt_token, name='api-token-refresh'),
     path('api/v1/', include(router.urls)),
+    path('docs/', include_docs_urls(
+        title='Luizalabs Employee Management API',
+        authentication_classes=[],
+        permission_classes=[permissions.AllowAny])
+         ),
 ]
