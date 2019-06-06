@@ -91,18 +91,31 @@ Server: WSGIServer/0.2 CPython/3.7.3
 Vary: Accept, Cookie
 X-Frame-Options: SAMEORIGIN
 
-[
-    {
-        "department": "Marketing",
-        "email": "jane.doe@luizalabs.com",
-        "id": 2,
-        "name": "Jane Doe"
-    },
-    {
-        "department": "Development",
-        "email": "john.doe@luizalabs.com",
-        "id": 1,
-        "name": "John Doe"
-    }
-]
+{
+    "count": 2,
+    "next": null,
+    "previous": null,
+    "results": [
+        {
+            "birthdate": "1998-03-11",
+            "department": "Marketing",
+            "email": "jane.doe@luizalabs.com",
+            "gender": "F",
+            "hire_date": "2017-05-26",
+            "id": 2,
+            "name": "Jane Doe"
+        },
+        {
+            "birthdate": "1989-08-05",
+            "department": "Development",
+            "email": "john.doe@luizalabs.com",
+            "gender": "M",
+            "hire_date": "2010-11-18",
+            "id": 1,
+            "name": "John Doe"
+        },
+    ]
+}
 ```
+
+For more information about API endpoints access API documentation at localhost:8000/docs/
